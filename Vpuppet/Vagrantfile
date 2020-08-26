@@ -1,0 +1,26 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant::Config.run do |config|
+  config.vm.box = "hashicorp/precise64"
+  config.vm.provision :shell,:inline => "apt-get update --fix-missing"
+
+  
+    config.vm.define "appserver" do |app|
+    app.vm.boot_mode = :headless
+    app.vm.network :bridged, :bridge => "eth0"
+    app.vm.host_name = "appserver00.local"
+
+    app.vm.provision :puppet do |puppet|
+
+      puppet.facter = { 
+        "fqdn" => "appserver00.local", 
+      }
+
+      puppet.module_path = "puppet/modules"
+      puppet.manifests_path = "puppet/manifests"
+      puppet.manifest_file = "appserver.pp"
+    end
+  end
+
+end
